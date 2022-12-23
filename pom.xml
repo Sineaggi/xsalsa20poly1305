@@ -44,14 +44,14 @@
   <dependencies>
     <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk15on</artifactId>
-      <version>1.61</version>
+      <artifactId>bcprov-jdk18on</artifactId>
+      <version>1.72</version>
     </dependency>
     <!-- compatible libraries for interoperability tests -->
     <dependency>
       <groupId>com.github.nitram509</groupId>
       <artifactId>jmacaroons</artifactId>
-      <version>0.3.1</version>
+      <version>0.4.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -67,11 +67,34 @@
       <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>null</source>
+            <target>null</target>
+            <release>8</release>
+          </configuration>
+          <executions>
+            <execution>
+              <id>compile-java-9</id>
+              <phase>compile</phase>
+              <goals>
+                <goal>compile</goal>
+              </goals>
+              <configuration>
+                <release>9</release>
+                <compileSourceRoots>${project.basedir}/src/main/java9</compileSourceRoots>
+                <multiReleaseOutput>true</multiReleaseOutput>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
           <configuration>
             <archive>
               <manifestEntries>
-                <Automatic-Module-Name>com.codahale.xsalsa20poly1305</Automatic-Module-Name>
+                <Multi-Release>true</Multi-Release>
               </manifestEntries>
             </archive>
           </configuration>

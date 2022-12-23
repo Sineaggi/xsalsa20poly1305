@@ -18,6 +18,7 @@ package com.codahale.xsalsa20poly1305.tests;
 import static com.codahale.xsalsa20poly1305.tests.Generators.byteArrays;
 import static com.codahale.xsalsa20poly1305.tests.Generators.privateKeys;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.codahale.xsalsa20poly1305.Keys;
 import com.codahale.xsalsa20poly1305.SecretBox;
@@ -28,11 +29,24 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.abstractj.kalium.NaCl;
 import org.abstractj.kalium.crypto.Box;
 import org.junit.jupiter.api.Test;
 import org.quicktheories.WithQuickTheories;
 
 class SecretBoxTest implements WithQuickTheories {
+
+  private final boolean sodiumIsAvailable;
+
+  public SecretBoxTest() {
+    boolean sodiumIsAvailable = true;
+    try {
+      NaCl.sodium();
+    } catch (UnsatisfiedLinkError e) {
+      sodiumIsAvailable = false;
+    }
+    this.sodiumIsAvailable = sodiumIsAvailable;
+  }
 
   @Test
   void shortKey() {
@@ -136,6 +150,7 @@ class SecretBoxTest implements WithQuickTheories {
 
   @Test
   void fromUsToLibSodium() {
+    assumeTrue(sodiumIsAvailable);
     qt().forAll(byteArrays(32, 32), byteArrays(24, 24), byteArrays(1, 4096))
         .check(
             (key, nonce, message) -> {
@@ -149,6 +164,7 @@ class SecretBoxTest implements WithQuickTheories {
 
   @Test
   void fromLibSodiumToUs() {
+    assumeTrue(sodiumIsAvailable);
     qt().forAll(byteArrays(32, 32), byteArrays(24, 24), byteArrays(1, 4096))
         .check(
             (key, nonce, message) -> {
@@ -161,6 +177,7 @@ class SecretBoxTest implements WithQuickTheories {
 
   @Test
   void pkFromUsToLibSodium() {
+    assumeTrue(sodiumIsAvailable);
     qt().forAll(privateKeys(), privateKeys(), byteArrays(24, 24), byteArrays(1, 4096))
         .check(
             (privateKeyA, privateKeyB, nonce, message) -> {
@@ -176,6 +193,7 @@ class SecretBoxTest implements WithQuickTheories {
 
   @Test
   void pkFromLibSodiumToUs() {
+    assumeTrue(sodiumIsAvailable);
     qt().forAll(privateKeys(), privateKeys(), byteArrays(24, 24), byteArrays(1, 4096))
         .check(
             (privateKeyA, privateKeyB, nonce, message) -> {
